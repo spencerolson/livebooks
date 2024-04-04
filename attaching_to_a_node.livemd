@@ -1,0 +1,37 @@
+# Attaching to Another Node from Livebook
+
+## Starting a Node
+
+In the terminal on your machine, start a node named `terminal` with the cookie `secret`.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex --name terminal@localhost --cookie secret
+```
+
+Still in the terminal, register the group leader:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Registry.start_link(keys: :unique, name: Livebook)
+{:group_leader, pid} = Process.info(self(), :group_leader)
+Registry.register(Livebook, :terminal_group_leader, pid)
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+Now, click on the "Runtime Settings" button on the left-hand side, and enter an Attached Node with the name and cookie from the step above. Next, let's get the PID of terminal's group leader:
+
+```elixir
+[{_, device}] = Registry.lookup(Livebook, :terminal_group_leader)
+```
+
+Finally, let's show some text in the terminal by sending a message to the group leader!
+
+```elixir
+IO.puts(device, "I'm sending a message from Liveook to the terminal!")
+```
+
+You should see the message show up in your terminal. Elixir is neat huh?!
